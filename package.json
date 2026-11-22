@@ -1,0 +1,13 @@
+{
+  "name": "blendlab",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.cjs",
+    "start": "node serve.cjs"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "5.4.0",
+    "solc": "0.8.30"
+  }
+}

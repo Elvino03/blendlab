@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create an NFT or a small collection on an EVM network.">
+  <meta name="referrer" content="no-referrer">
+  <title>Blendlab • NFT Studio</title>
+  <meta name="theme-color" content="#ffecaa">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b62332'/%3E%3Cpath d='M10 7h12l-2 12h-8L10 7ZM12 19h8l3 6H9l3-6Zm0-8h4m-3 4h3m5-6h4v6h-4' stroke='%23fff5e7' stroke-width='1.7' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>/* STUDIO_CSS */</style>
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-brand" viewBox="0 0 24 24"><path d="M6 3h11l-2 11H8L6 3Zm2 11h7l3 6H5l3-6Zm0-7h4m-3 4h3m4-6h4v5h-4m-5 7h1"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13v3M3 7v11a2 2 0 0 0 2 2h15V8H5a2 2 0 0 1-2-1Zm17 4h-5v5h5m-3.5-2.5h.01"/></symbol>
+    <symbol id="i-picture" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 17 5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="8.5" r="1.5"/></symbol>
+    <symbol id="i-stack" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="m10 13 4-4m-6 7-1 1a3 3 0 0 1-4-4l4-4a3 3 0 0 1 4 0m2-1 1-1a3 3 0 0 1 4 4l-4 4a3 3 0 0 1-4 0" transform="translate(1 0)"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 12 7-12 7V5Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L19 7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M4 16v4h16v-4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-chain" viewBox="0 0 24 24"><path d="m12 2 6 10-6 4-6-4 6-10Zm-6 13 6 7 6-7"/></symbol>
+  </svg>
+  <header class="top">
+    <div class="shell toolbar">
+      <button class="brand" type="button" id="brand"><span class="mark"><svg><use href="#i-brand"/></svg></span><span>blendlab<span class="brand-period">.</span></span></button>
+      <nav aria-label="Main navigation">
+        <button id="studio-nav" class="nav-link" aria-current="page" type="button">Studio</button>
+        <button id="history-nav" class="nav-link" type="button">Mint history</button>
+      </nav>
+      <button id="wallet" class="button secondary wallet" type="button"><svg><use href="#i-wallet"/></svg><span>Connect wallet</span></button>
+    </div>
+  </header>
+  <main class="shell" id="main">
+    <section id="studio">
+      <div class="intro">
+        <div>
+          <h1>Create an NFT</h1>
+          <p>Drop in your art, preview the blend, then mint it onchain.</p>
+        </div>
+        <label for="network" class="network"><svg><use href="#i-chain"/></svg><span class="sr-only">Mint network</span><select id="network">
+          <option value="0xaa36a7">Ethereum Sepolia</option>
+          <option value="0x14a34">Base Sepolia</option>
+          <option value="0x2105">Base</option>
+          <option value="0x1">Ethereum</option>
+          <option value="0xa">OP Mainnet</option>
+          <option value="0xa4b1">Arbitrum One</option>
+          <option value="0x89">Polygon PoS</option>
+          <option value="current">Current wallet network</option>
+        </select><svg class="down"><use href="#i-chevron"/></svg></label>
+      </div>
+      <div class="workspace">
+        <section class="editor" aria-label="NFT setup">
+          <div class="mode" aria-label="Mint type">
+            <button id="single" type="button" aria-pressed="true"><svg><use href="#i-picture"/></svg>Single NFT</button>
+            <button id="collection" type="button" aria-pressed="false"><svg><use href="#i-stack"/></svg>Collection</button>
+          </div>
+          <form id="art-form" novalidate>
+            <div class="field-heading"><label for="file" id="art-label">Artwork</label><button class="text-button" id="sample" type="button">Try a sample</button></div>
+            <input class="sr-only" type="file" id="file" accept="image/png,image/jpeg,image/webp" tabindex="-1">
+            <button type="button" class="drop" id="drop">
+              <svg><use href="#i-upload"/></svg><strong>Drop an image or browse</strong>
+              <small>PNG, JPG, WebP · up to 15 MB</small>
+            </button>
+            <ul class="asset-list" id="assets" hidden></ul>
+            <details class="ipfs" id="ipfs">
+              <summary><svg><use href="#i-link"/></svg>Add IPFS artwork<svg class="down"><use href="#i-chevron"/></svg></summary>
+              <div class="ipfs-entry">
+                <label for="ipfs-uri">Image URI</label>
+                <input id="ipfs-uri" type="text" placeholder="ipfs://CID/image.png" maxlength="500" spellcheck="false">
+                <button id="ipfs-add" type="button" class="button secondary">Add image</button>
+                <p>Pin the image before minting so it remains available.</p>
+              </div>
+            </details>
+            <div class="form-fields">
+              <label for="title" id="title-label">NFT name</label>
+              <input id="title" maxlength="64" placeholder="e.g. Signal Bloom" autocomplete="off" required>
+              <label for="description">Description <span>Optional</span></label>
+              <textarea id="description" maxlength="600" placeholder="Tell the story behind the artwork." rows="2"></textarea>
+              <div id="symbol-field" hidden><label for="symbol">Collection symbol</label><input id="symbol" maxlength="10" pattern="[A-Za-z0-9]{1,10}" placeholder="e.g. SIGNAL" autocomplete="off"></div>
+            </div>
+            <p class="message" id="form-message" role="status" hidden></p>
+          </form>
+        </section>
+        <section class="machine" aria-labelledby="machine-title">
+          <header class="machine-head">
+            <h2 id="machine-title"><svg><use href="#i-brand"/></svg><span>The blender</span></h2>
+            <span class="state"><i></i><span id="stage-status" role="status">Standby</span></span>
+          </header>
+          <div class="viewport" id="viewport">
+            <div class="grid-frame" aria-hidden="true"><b></b><b></b><b></b><b></b></div>
+            <canvas id="blender" width="640" height="430" role="img" aria-label="Illustration of a countertop blender"></canvas>
+            <p class="stage-caption" id="stage-caption">Add artwork to load the blender.</p>
+            <div id="result" class="result" hidden>
+              <div id="result-gallery" class="result-gallery"></div>
+              <strong id="result-title"></strong>
+              <span id="result-note"></span>
+            </div>
+          </div>
+          <div class="machine-foot">
+            <div class="stage-actions">
+              <button class="button primary" id="blend" type="submit" form="art-form"><svg><use href="#i-play"/></svg><span>Blend preview</span></button>
+              <button class="button secondary" id="export" type="button" hidden><svg><use href="#i-download"/></svg>Metadata</button>
+              <button class="button secondary" id="mint" type="button" hidden>Review mint</button>
+            </div>
+            <p id="preview-help">Previewing is free. Minting uses network gas.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+    <section id="history" class="history" hidden aria-labelledby="history-title">
+      <div class="intro"><div><h1 id="history-title">Mint history</h1><p>Transactions submitted from this browser.</p></div><button id="refresh" class="button secondary" type="button">Refresh receipts</button></div>
+      <div class="history-list" id="history-list"></div>
+      <p id="history-message" class="message" role="status" hidden></p>
+    </section>
+    <footer>
+      <span>ERC-721 mint studio</span>
+      <div class="policies">
+        <button class="text-button" data-policy="privacy" type="button">Privacy</button>
+        <button class="text-button" data-policy="terms" type="button">Terms</button>
+        <button class="text-button" data-policy="cookies" type="button">Cookies</button>
+      </div>
+    </footer>
+  </main>
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <div class="dialog-head"><h2 id="dialog-title"></h2><button class="icon-button" id="close-dialog" aria-label="Close" type="button"><svg><use href="#i-close"/></svg></button></div>
+    <div id="dialog-body"></div>
+  </dialog>
+  <aside id="cookie-banner" class="cookie-banner" aria-label="Cookie choices" hidden>
+    <div><strong>Browser storage</strong><p>This studio uses local storage for mint history and cookie preferences. It uses no optional tracking cookies.</p></div>
+    <div class="cookie-actions"><button data-policy="cookies" class="text-button" type="button">Preferences</button><button id="cookie-dismiss" class="button secondary" type="button">Continue</button></div>
+  </aside>
+  <script>/* STUDIO_JS */</script>
+</body>
+</html>
