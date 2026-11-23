@@ -4,7 +4,7 @@ Blendlab turns a single image or up to ten artworks into a fixed-supply ERC-721 
 
 ## Run the studio
 
-Open `dist/index.html` to try the preview offline, or run `npm start` and visit `http://127.0.0.1:4173` in a browser with an injected EVM wallet for minting. The default network is Ethereum Sepolia. Install or add the selected network in your wallet before minting. The current-wallet-network option accepts other compatible EVM networks.
+Open `dist/index.html` to try the preview offline, or run `npm start` and visit `http://127.0.0.1:4173` in a browser with an installed EVM wallet. Choose an extension under **Connect wallet**. Open the connected account in the header to switch wallets or disconnect. The default network is Ethereum Sepolia. Add the selected network in your wallet before minting if your wallet does not already list it. The current-wallet-network option accepts other compatible EVM networks.
 
 Run `npm ci` and `npm run build` to rebuild the self-contained HTML. The Solidity contract is compiled with the Paris EVM target and pins the OpenZeppelin ERC-721 implementation.
 

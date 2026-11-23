@@ -157,6 +157,12 @@ dialog::backdrop { background: #39141a91; }
 #dialog-body dl { margin: 0 0 16px; display: grid; grid-template-columns: auto 1fr; gap: 7px 12px; font-size: .875rem; }
 #dialog-body dt { color: var(--muted); }
 #dialog-body dd { margin: 0; overflow-wrap: anywhere; }
+.wallet-options { display: grid; gap: 8px; }
+.wallet-option { min-height: 52px; justify-content: start; text-align: start; overflow-wrap: anywhere; }
+.wallet-option :is(svg, img) { width: 22px; height: 22px; flex: none; object-fit: contain; }
+.wallet-options + p, #dialog-body .wallet-options ~ .message { margin-block-start: 12px; }
+.wallet-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.wallet-account { overflow-wrap: anywhere; }
 .cookie-banner { position: fixed; bottom: 15px; right: 15px; z-index: 3; border: 1px solid var(--edge); background: var(--raised); color: var(--ink); max-width: min(395px, calc(100% - 30px)); border-radius: 10px; padding: 13px 15px; }
 .cookie-banner p { margin-top: 4px; color: var(--muted); font-size: .875rem; line-height: 1.43; }
 .cookie-actions { display: flex; justify-content: end; align-items: center; gap: 14px; margin-top: 9px; }

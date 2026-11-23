@@ -379,14 +379,16 @@ function dialog(title, ...elements) {
   $("#dialog-body").replaceChildren(...elements);
   if (!$("#dialog").open) $("#dialog").showModal();
 }
-function call(method, params) {
-  const provider = window.ethereum;
-  if (!provider?.request) throw Error("Open the studio in a browser with an installed EVM wallet.");
+function call(method, params, wallet = activeWallet) {
+  const provider = wallet?.provider;
+  if (!provider) throw Error("Connect a wallet to continue.");
   return provider.request(params ? { method, params } : { method });
 }
 function setAccount(account) {
-  state.account = addressPattern.test(account ?? "") ? account : null;
+  state.account = typeof account === "string" && addressPattern.test(account) ? account : null;
   $("#wallet span").textContent = state.account ? `${state.account.slice(0, 6)}…${state.account.slice(-4)}` : "Connect wallet";
+  const address = $("#dialog-body .wallet-account");
+  if (address && state.account) address.textContent = state.account;
 }
 function walletError(error) {
   if (error?.code === 4001 || error?.code === "ACTION_REJECTED") return "The wallet request was declined. You can try again when ready.";
@@ -394,18 +396,8 @@ function walletError(error) {
   if (error?.code === -32002) return "A request is already waiting in your wallet. Open the wallet to continue.";
   return String(error?.shortMessage || error?.message || "The wallet request didn't complete.").slice(0, 230);
 }
-async function connect() {
-  if (!window.ethereum?.request) {
-    dialog("Connect an EVM wallet", make("p", "Open Blendlab in a browser with an EVM wallet extension, or in your wallet’s browser. You can preview and download metadata here without a wallet."));
-    return null;
-  }
-  const [account] = await call("eth_requestAccounts");
-  setAccount(account);
-  if (!state.account) throw Error("Select an account in your wallet to continue.");
-  return state.account;
-}
-async function getChain() {
-  const chain = await call("eth_chainId");
+async function getChain(wallet = activeWallet) {
+  const chain = await call("eth_chainId", undefined, wallet);
   if (!/^0x[\da-f]+$/i.test(chain)) throw Error("The wallet did not return a valid EVM chain ID.");
   return "0x" + BigInt(chain).toString(16);
 }
@@ -415,6 +407,8 @@ function networkName(chain) {
 function reviewMint() {
   if (!state.draft || state.sending) return;
   const draft = state.draft;
+  const wallet = activeWallet;
+  const account = state.account;
   const selected = $("#network").value;
   const networkLabel = networkName(selected);
   const embedded = draft.items.filter(item => item.metadata.image.startsWith("data:")).length;
@@ -422,18 +416,24 @@ function reviewMint() {
   for (const [key, value] of [
     ["Name", draft.name],
     ["Network", networkLabel],
+    ["Wallet", wallet && account ? `${wallet.name} · ${account}` : "Choose a wallet"],
     ["Supply", `${draft.items.length} · ${draft.symbol}`],
     ["Artwork", embedded === draft.items.length ? "Embedded onchain" : embedded ? "Embedded and IPFS" : "IPFS links"]
   ]) details.append(make("dt", key), make("dd", value));
-  const action = button("Continue to wallet", "primary");
+  const action = button(wallet && account ? "Continue to wallet" : "Choose wallet", "primary");
   const status = make("p");
   status.className = "message";
   status.setAttribute("role", "status");
   status.hidden = true;
-  action.onclick = () => sendMint(draft, selected, action, status);
+  action.onclick = () => {
+    if (wallet !== activeWallet || account !== state.account) return reviewMint();
+    if (!wallet || !account) return showWalletPicker({ onConnected: reviewMint, onBack: reviewMint });
+    sendMint(draft, selected, wallet, account, action, status);
+  };
   dialog("Review mint", details, make("p", "Your wallet will deploy a new ERC-721 contract and receive every NFT. The transaction requires gas. After confirmation, the metadata is public and permanent."), status, action);
+  action.focus();
 }
-async function sendMint(draft, selected, action, status) {
+async function sendMint(draft, selected, wallet, from, action, status) {
   if (state.sending) return;
   state.sending = true;
   action.disabled = true;
@@ -443,28 +443,33 @@ async function sendMint(draft, selected, action, status) {
   status.classList.remove("error");
   try {
     status.textContent = "Checking your wallet and network…";
-    const from = await connect();
-    if (!from) return;
-    let chain = await getChain();
+    const [connected] = await call("eth_accounts", undefined, wallet);
+    if (typeof connected !== "string" || connected.toLowerCase() !== from.toLowerCase()) {
+      throw Error("The wallet account changed. Reopen the mint review and try again.");
+    }
+    let chain = await getChain(wallet);
     if (selected !== "current" && chain !== selected) {
-      await call("wallet_switchEthereumChain", [{ chainId: selected }]);
-      chain = await getChain();
+      await call("wallet_switchEthereumChain", [{ chainId: selected }], wallet);
+      chain = await getChain(wallet);
       if (chain !== selected) throw Error("Switch to the selected network in your wallet before minting.");
     }
     const transaction = { from, data: draft.data, value: "0x0" };
     status.textContent = `Estimating gas on ${networkName(chain)}…`;
     try {
-      const estimate = await call("eth_estimateGas", [transaction]);
+      const estimate = await call("eth_estimateGas", [transaction], wallet);
       if (!/^0x[0-9a-f]+$/i.test(estimate) || BigInt(estimate) <= 0n) throw Error("The wallet returned an invalid gas estimate.");
       transaction.gas = estimate;
     } catch (error) {
       throw Error(`Gas estimation failed. ${walletError(error)}`);
     }
-    if (await getChain() !== chain) throw Error("The wallet network changed. Review the network and try again.");
-    const [active] = await call("eth_accounts");
-    if (active?.toLowerCase() !== from.toLowerCase()) throw Error("The wallet account changed. Review the account and try again.");
+    const [active] = await call("eth_accounts", undefined, wallet);
+    if (activeWallet !== wallet || typeof active !== "string" || active.toLowerCase() !== from.toLowerCase()) {
+      throw Error("The wallet account changed. Review the account and try again.");
+    }
+    if (await getChain(wallet) !== chain) throw Error("The wallet network changed. Review the network and try again.");
+    if (activeWallet !== wallet || state.account !== from) throw Error("The wallet changed. Review the mint and try again.");
     status.textContent = `Review and confirm the transaction in your wallet on ${networkName(chain)}.`;
-    const hash = await call("eth_sendTransaction", [transaction]);
+    const hash = await call("eth_sendTransaction", [transaction], wallet);
     if (!hashPattern.test(hash)) throw Error("The wallet did not return a transaction hash. Check wallet activity before retrying.");
     const record = { name: draft.name, chain, hash, count: draft.items.length, status: "Pending", submitted: Date.now() };
     const saved = remember(record);
@@ -530,12 +535,14 @@ async function refreshHistory() {
     return;
   }
   $("#refresh").disabled = true;
+  const wallet = activeWallet;
   try {
-    const current = await getChain();
+    const current = await getChain(wallet);
     const matching = pending.filter(record => record.chain === current);
     if (!matching.length) throw Error("Switch your wallet to a network with a pending mint, then refresh.");
     for (const record of matching) {
-      const receipt = await call("eth_getTransactionReceipt", [record.hash]);
+      const receipt = await call("eth_getTransactionReceipt", [record.hash], wallet);
+      if (await getChain(wallet) !== current) throw Error("The wallet network changed. Switch back and refresh the receipts.");
       if (!receipt) continue;
       if (receipt.status === "0x1" && addressPattern.test(receipt.contractAddress ?? "")) {
         record.status = "Confirmed";
@@ -642,21 +649,12 @@ $("#brand").onclick = () => navigate("studio");
 $("#studio-nav").onclick = () => navigate("studio");
 $("#history-nav").onclick = () => navigate("history");
 $("#refresh").onclick = refreshHistory;
-$("#wallet").onclick = async () => {
-  $("#wallet").disabled = true;
-  try {
-    if (state.account) dialog("Connected wallet", make("p", state.account), make("p", networkName(await getChain())));
-    else await connect();
-  } catch (error) {
-    dialog("Wallet connection", make("p", walletError(error)));
-  } finally {
-    $("#wallet").disabled = false;
-  }
-};
-window.ethereum?.on?.("accountsChanged", accounts => setAccount(accounts[0]));
-if (window.ethereum?.request) call("eth_accounts").then(accounts => setAccount(accounts[0])).catch(() => {});
+$("#wallet").onclick = showConnectedWallet;
+window.addEventListener("eip6963:announceProvider", announceWallet);
+discoverWallets();
 $("#close-dialog").onclick = () => $("#dialog").close();
 $("#dialog").addEventListener("cancel", event => { if (state.sending) event.preventDefault(); });
+$("#dialog").addEventListener("close", () => { if (!$("#dialog").open) walletPicker = null; });
 document.querySelectorAll("[data-policy]").forEach(element => { element.onclick = () => showPolicy(element.dataset.policy); });
 $("#cookie-dismiss").onclick = dismissCookies;
 $("#cookie-banner").hidden = readStorage(cookieKey) === "acknowledged";

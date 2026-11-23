@@ -34,7 +34,7 @@ if (fs.existsSync(path.join(root, "assets/inter.woff2"))) {
   const data = fs.readFileSync(path.join(root, "assets/inter.woff2")).toString("base64");
   font = `/* ${read("assets/Inter-OFL.txt")} */\n@font-face { font-family: Inter; font-weight: 100 900; font-style: normal; font-display: swap; src: url(data:font/woff2;base64,${data}) format("woff2"); }`;
 }
-const script = [`const CONTRACT_CODE = "${bytecode}";`, read("blender.js"), read("studio.js")].join("\n");
+const script = [`const CONTRACT_CODE = "${bytecode}";`, read("blender.js"), read("wallet.js"), read("studio.js")].join("\n");
 const page = read("studio.html")
   .replace("/* STUDIO_CSS */", () => read("studio.css").replace("/* STUDIO_FONT */", () => font))
   .replace("/* STUDIO_JS */", () => `"use strict";\n${script.replace(/<\/script/gi, "<\\/script")}`);
