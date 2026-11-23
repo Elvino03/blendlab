@@ -118,15 +118,29 @@
       <div class="history-list" id="history-list"></div>
       <p id="history-message" class="message" role="status" hidden></p>
     </section>
-    <footer>
-      <span>ERC-721 mint studio</span>
-      <div class="policies">
+  </main>
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div class="footer-identity">
+        <span class="mark" aria-hidden="true"><svg><use href="#i-brand"/></svg></span>
+        <div>
+          <p class="footer-name">Blendlab</p>
+          <p class="footer-description">ERC-721 mint studio</p>
+        </div>
+      </div>
+      <nav class="footer-links" aria-labelledby="footer-policies">
+        <h2 id="footer-policies">Policies</h2>
         <button class="text-button" data-policy="privacy" type="button">Privacy</button>
         <button class="text-button" data-policy="terms" type="button">Terms</button>
         <button class="text-button" data-policy="cookies" type="button">Cookies</button>
-      </div>
-    </footer>
-  </main>
+      </nav>
+      <nav class="footer-links" aria-labelledby="footer-profiles">
+        <h2 id="footer-profiles">Creator profiles</h2>
+        <a href="https://x.com/ViperVineswag" target="_blank" rel="noopener noreferrer">X <span>@ViperVineswag</span></a>
+        <a href="https://github.com/Elvino03" target="_blank" rel="noopener noreferrer">GitHub <span>Elvino03</span></a>
+      </nav>
+    </div>
+  </footer>
   <dialog id="dialog" aria-labelledby="dialog-title">
     <div class="dialog-head"><h2 id="dialog-title"></h2><button class="icon-button" id="close-dialog" aria-label="Close" type="button"><svg><use href="#i-close"/></svg></button></div>
     <div id="dialog-body"></div>

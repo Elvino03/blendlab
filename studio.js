@@ -566,18 +566,23 @@ function navigate(page) {
 
 const policies = {
   privacy: ["Privacy policy", [
-    "Review draft. Operator and contact details are pending.",
-    "The studio processes local images in your browser. It saves submitted mint details in this browser’s local storage.",
-    "When you mint, the wallet handles the transaction. The artwork or its IPFS reference, metadata, receiving address and transaction become publicly visible on the selected blockchain. Block explorer links open external services."
+    "Viper Vineswag operates Blendlab.",
+    "Blendlab processes uploaded artwork and draft metadata in your browser. It stores recent mint records, such as the transaction hash, network and status, in this browser so you can see them in Mint history.",
+    "When you choose to mint, your wallet handles the transaction. On public networks, the receiving address, transaction, contract address and NFT metadata become public. The metadata includes the image or its IPFS reference. Blendlab cannot erase public blockchain records.",
+    "Vercel hosts this site and may process IP addresses and request information to deliver and protect it. Your wallet, block explorer and IPFS provider handle data under their own policies when you use those services.",
+    "You can clear this site’s data in your browser to remove its local records. For privacy questions or requests, contact the operator by Direct Message on X."
   ]],
   terms: ["Terms and conditions", [
-    "Review draft. Operator details and final terms are pending.",
-    "Use art you own or are authorized to mint. The wallet displays the network and the transaction fee before you sign.",
-    "A confirmed mint is permanent. Images linked from IPFS depend on continued pinning. Network and marketplace support can vary."
+    "Viper Vineswag operates Blendlab, a tool for preparing and minting NFTs through your own wallet.",
+    "Only mint artwork and metadata you have permission to use. Check the network, receiving wallet and estimated gas fee before signing.",
+    "Blendlab currently charges no platform fee. Your wallet handles network fees, and your IPFS provider may charge separately. The network may charge gas for a transaction that reverts.",
+    "A confirmed mint is permanent. IPFS images depend on continued hosting or pinning. Wallet and marketplace support can vary by network.",
+    "For questions about these terms or the studio, contact the operator by Direct Message on X."
   ]],
   cookies: ["Cookie policy", [
-    "Review draft. This studio uses no optional cookies, trackers or analytics.",
-    "It uses local storage to keep mint history on this device and to remember that you dismissed the storage notice. Clear this site’s storage in your browser to remove those records."
+    "Blendlab uses browser local storage to keep mint history on this device and remember your storage notice choice. The studio itself uses no optional cookies, trackers or analytics.",
+    "When a review deployment requires Vercel sign-in, Vercel Authentication can set a cookie to remember that you have access.",
+    "Clear this site’s cookies and storage through your browser settings to remove local records and preferences. Public blockchain records are stored separately."
   ]]
 };
 function dismissCookies() {
@@ -587,7 +592,22 @@ function dismissCookies() {
 function showPolicy(key) {
   const [title, paragraphs] = policies[key];
   const content = paragraphs.map(line => make("p", line));
-  if (key === "cookies") {
+  if (key === "privacy" || key === "terms") {
+    const contact = make("a", "Contact @ViperVineswag on X");
+    contact.href = "https://x.com/ViperVineswag";
+    contact.target = "_blank";
+    contact.rel = "noopener noreferrer";
+    const links = make("p");
+    links.append(contact);
+    if (key === "privacy") {
+      const hostPrivacy = make("a", "Vercel privacy notice");
+      hostPrivacy.href = "https://vercel.com/legal/privacy-notice";
+      hostPrivacy.target = "_blank";
+      hostPrivacy.rel = "noopener noreferrer";
+      links.append(make("br"), hostPrivacy);
+    }
+    content.push(links);
+  } else {
     const save = button("Acknowledge storage");
     save.onclick = () => { dismissCookies(); $("#dialog").close(); };
     content.push(save);

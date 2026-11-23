@@ -127,7 +127,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { margin: 0; color: var(--ink); background: var(--ground); }
+body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; margin: 0; color: var(--ink); background: var(--ground); }
+main { flex: 1; }
 button, input, textarea, select { font: inherit; }
 button, select { cursor: pointer; }
 button { color: inherit; }
@@ -144,7 +145,7 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .mark { display: grid; place-items: center; color: var(--accent-ink); background: var(--accent); width: 34px; height: 34px; border-radius: 7px; }
 .mark svg { width: 24px; height: 24px; stroke-width: 1.6; }
 .brand-period { color: var(--accent); }
-nav { display: flex; gap: 26px; height: 100%; }
+.toolbar nav { display: flex; gap: 26px; height: 100%; }
 .nav-link { height: 100%; color: var(--muted); font-size: .9rem; font-weight: 550; border-bottom: 2px solid transparent; padding-inline: 3px; }
 .nav-link:hover, .nav-link[aria-current] { color: var(--ink); }
 .nav-link[aria-current] { border-color: var(--accent); }
@@ -239,9 +240,16 @@ textarea { min-height: 70px; resize: vertical; }
 .history-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; padding: 12px 0; overflow-wrap: anywhere; }
 .history-row + .history-row { border-top: 1px solid var(--line); }
 .history-row span, .history-row small { color: var(--muted); font-size: .875rem; }
-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px 20px; border-top: 1px solid var(--line); margin-top: 25px; min-height: 54px; padding-bottom: 4px; color: var(--muted); font-size: .8125rem; }
-.policies { display: flex; gap: 15px; }
-.policies .text-button { font-size: .8125rem; font-weight: 500; }
+.site-footer { margin-top: 28px; border-top: 1px solid var(--line); background: var(--panel); }
+.footer-inner { display: grid; grid-template-columns: minmax(0, 1fr) max-content max-content; align-items: start; gap: 20px clamp(32px, 7vw, 96px); padding-block: 24px; }
+.footer-identity { display: flex; align-items: center; gap: 10px; }
+.footer-name { font-size: 1rem; font-weight: 750; line-height: 1.25; }
+.footer-description { margin-top: 3px; color: var(--muted); font-size: .875rem; line-height: 1.45; }
+.footer-links { display: grid; justify-items: start; }
+.footer-links h2 { margin-bottom: 4px; font-size: .875rem; line-height: 1.5; }
+.footer-links :is(a, .text-button) { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0 6px; min-height: 32px; color: var(--ink); font-size: .875rem; font-weight: 550; line-height: 1.4; text-align: start; text-decoration: none; text-underline-offset: 3px; }
+.footer-links a span { color: var(--muted); overflow-wrap: anywhere; }
+.footer-links :is(a, .text-button):hover { color: var(--accent); text-decoration: underline; }
 dialog { width: min(490px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto; color: var(--ink); background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 18px 22px 22px; }
 dialog::backdrop { background: #39141a91; }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
@@ -264,7 +272,7 @@ dialog::backdrop { background: #39141a91; }
 @media (max-width: 700px) {
   .shell { width: calc(100% - 32px); }
   .toolbar { grid-template-columns: 1fr auto; height: auto; gap: 0 10px; padding-top: 10px; }
-  nav { grid-row: 2; grid-column: 1 / -1; height: 44px; gap: 18px; }
+  .toolbar nav { grid-row: 2; grid-column: 1 / -1; height: 44px; gap: 18px; }
   .wallet { grid-row: 1; grid-column: 2; }
   .intro { margin: 25px 0 16px; align-items: start; flex-direction: column; }
   h1 { font-size: 1.6rem; }
@@ -276,6 +284,9 @@ dialog::backdrop { background: #39141a91; }
   .mode { margin-bottom: 10px; }
   input:not([type=file]), textarea { font-size: 1rem; }
   .machine-foot { padding: 12px; }
+  .footer-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .footer-identity { grid-column: 1 / -1; }
+  .footer-links :is(a, .text-button) { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0s !important; } }
 </style>
@@ -388,15 +399,29 @@ dialog::backdrop { background: #39141a91; }
       <div class="history-list" id="history-list"></div>
       <p id="history-message" class="message" role="status" hidden></p>
     </section>
-    <footer>
-      <span>ERC-721 mint studio</span>
-      <div class="policies">
+  </main>
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div class="footer-identity">
+        <span class="mark" aria-hidden="true"><svg><use href="#i-brand"/></svg></span>
+        <div>
+          <p class="footer-name">Blendlab</p>
+          <p class="footer-description">ERC-721 mint studio</p>
+        </div>
+      </div>
+      <nav class="footer-links" aria-labelledby="footer-policies">
+        <h2 id="footer-policies">Policies</h2>
         <button class="text-button" data-policy="privacy" type="button">Privacy</button>
         <button class="text-button" data-policy="terms" type="button">Terms</button>
         <button class="text-button" data-policy="cookies" type="button">Cookies</button>
-      </div>
-    </footer>
-  </main>
+      </nav>
+      <nav class="footer-links" aria-labelledby="footer-profiles">
+        <h2 id="footer-profiles">Creator profiles</h2>
+        <a href="https://x.com/ViperVineswag" target="_blank" rel="noopener noreferrer">X <span>@ViperVineswag</span></a>
+        <a href="https://github.com/Elvino03" target="_blank" rel="noopener noreferrer">GitHub <span>Elvino03</span></a>
+      </nav>
+    </div>
+  </footer>
   <dialog id="dialog" aria-labelledby="dialog-title">
     <div class="dialog-head"><h2 id="dialog-title"></h2><button class="icon-button" id="close-dialog" aria-label="Close" type="button"><svg><use href="#i-close"/></svg></button></div>
     <div id="dialog-body"></div>
@@ -1304,18 +1329,23 @@ function navigate(page) {
 
 const policies = {
   privacy: ["Privacy policy", [
-    "Review draft. Operator and contact details are pending.",
-    "The studio processes local images in your browser. It saves submitted mint details in this browser’s local storage.",
-    "When you mint, the wallet handles the transaction. The artwork or its IPFS reference, metadata, receiving address and transaction become publicly visible on the selected blockchain. Block explorer links open external services."
+    "Viper Vineswag operates Blendlab.",
+    "Blendlab processes uploaded artwork and draft metadata in your browser. It stores recent mint records, such as the transaction hash, network and status, in this browser so you can see them in Mint history.",
+    "When you choose to mint, your wallet handles the transaction. On public networks, the receiving address, transaction, contract address and NFT metadata become public. The metadata includes the image or its IPFS reference. Blendlab cannot erase public blockchain records.",
+    "Vercel hosts this site and may process IP addresses and request information to deliver and protect it. Your wallet, block explorer and IPFS provider handle data under their own policies when you use those services.",
+    "You can clear this site’s data in your browser to remove its local records. For privacy questions or requests, contact the operator by Direct Message on X."
   ]],
   terms: ["Terms and conditions", [
-    "Review draft. Operator details and final terms are pending.",
-    "Use art you own or are authorized to mint. The wallet displays the network and the transaction fee before you sign.",
-    "A confirmed mint is permanent. Images linked from IPFS depend on continued pinning. Network and marketplace support can vary."
+    "Viper Vineswag operates Blendlab, a tool for preparing and minting NFTs through your own wallet.",
+    "Only mint artwork and metadata you have permission to use. Check the network, receiving wallet and estimated gas fee before signing.",
+    "Blendlab currently charges no platform fee. Your wallet handles network fees, and your IPFS provider may charge separately. The network may charge gas for a transaction that reverts.",
+    "A confirmed mint is permanent. IPFS images depend on continued hosting or pinning. Wallet and marketplace support can vary by network.",
+    "For questions about these terms or the studio, contact the operator by Direct Message on X."
   ]],
   cookies: ["Cookie policy", [
-    "Review draft. This studio uses no optional cookies, trackers or analytics.",
-    "It uses local storage to keep mint history on this device and to remember that you dismissed the storage notice. Clear this site’s storage in your browser to remove those records."
+    "Blendlab uses browser local storage to keep mint history on this device and remember your storage notice choice. The studio itself uses no optional cookies, trackers or analytics.",
+    "When a review deployment requires Vercel sign-in, Vercel Authentication can set a cookie to remember that you have access.",
+    "Clear this site’s cookies and storage through your browser settings to remove local records and preferences. Public blockchain records are stored separately."
   ]]
 };
 function dismissCookies() {
@@ -1325,7 +1355,22 @@ function dismissCookies() {
 function showPolicy(key) {
   const [title, paragraphs] = policies[key];
   const content = paragraphs.map(line => make("p", line));
-  if (key === "cookies") {
+  if (key === "privacy" || key === "terms") {
+    const contact = make("a", "Contact @ViperVineswag on X");
+    contact.href = "https://x.com/ViperVineswag";
+    contact.target = "_blank";
+    contact.rel = "noopener noreferrer";
+    const links = make("p");
+    links.append(contact);
+    if (key === "privacy") {
+      const hostPrivacy = make("a", "Vercel privacy notice");
+      hostPrivacy.href = "https://vercel.com/legal/privacy-notice";
+      hostPrivacy.target = "_blank";
+      hostPrivacy.rel = "noopener noreferrer";
+      links.append(make("br"), hostPrivacy);
+    }
+    content.push(links);
+  } else {
     const save = button("Acknowledge storage");
     save.onclick = () => { dismissCookies(); $("#dialog").close(); };
     content.push(save);
